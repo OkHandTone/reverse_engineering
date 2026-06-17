@@ -1,0 +1,9 @@
+************* Module inventory_management_project.settings
+inventory_management_project/settings.py:50:0: C0303: Trailing whitespace (trailing-whitespace)
+inventory_management_project/settings.py:14:0: W0611: Unused timedelta imported from datetime (unused-import)
+************* Module inventory_management_project.urls
+inventory_management_project/urls.py:18:0: W0611: Unused re_path imported from django.urls (unused-import)
+
+-----------------------------------
+Your code has been rated at 9.03/10
+

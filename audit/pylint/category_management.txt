@@ -1,0 +1,61 @@
+************* Module category_management.models
+category_management/models.py:9:0: C0301: Line too long (120/100) (line-too-long)
+category_management/models.py:14:0: C0304: Final newline missing (missing-final-newline)
+category_management/models.py:1:0: C0114: Missing module docstring (missing-module-docstring)
+category_management/models.py:5:0: C0115: Missing class docstring (missing-class-docstring)
+category_management/models.py:13:4: E0307: __str__ does not return str (invalid-str-returned)
+category_management/models.py:2:0: C0411: standard import "uuid" should be placed before third party import "django.db.models" (wrong-import-order)
+************* Module category_management.serializers
+category_management/serializers.py:1:0: C0114: Missing module docstring (missing-module-docstring)
+category_management/serializers.py:5:0: C0115: Missing class docstring (missing-class-docstring)
+category_management/serializers.py:6:4: C0115: Missing class docstring (missing-class-docstring)
+category_management/serializers.py:6:4: R0903: Too few public methods (0/2) (too-few-public-methods)
+************* Module category_management.apps
+category_management/apps.py:1:0: C0114: Missing module docstring (missing-module-docstring)
+category_management/apps.py:4:0: C0115: Missing class docstring (missing-class-docstring)
+************* Module category_management.admin
+category_management/admin.py:6:0: C0304: Final newline missing (missing-final-newline)
+category_management/admin.py:1:0: C0114: Missing module docstring (missing-module-docstring)
+************* Module category_management.tests
+category_management/tests.py:1:0: C0114: Missing module docstring (missing-module-docstring)
+category_management/tests.py:1:0: W0611: Unused TestCase imported from django.test (unused-import)
+************* Module category_management.urls
+category_management/urls.py:1:0: C0114: Missing module docstring (missing-module-docstring)
+category_management/urls.py:2:0: W0401: Wildcard import views (wildcard-import)
+category_management/urls.py:2:0: W0614: Unused import(s) CategoryListView, render, generics, ListView, Category and CategorySerializer from wildcard import of views (unused-wildcard-import)
+************* Module category_management.views
+category_management/views.py:11:0: C0303: Trailing whitespace (trailing-whitespace)
+category_management/views.py:15:0: C0303: Trailing whitespace (trailing-whitespace)
+category_management/views.py:23:0: C0303: Trailing whitespace (trailing-whitespace)
+category_management/views.py:34:0: C0301: Line too long (109/100) (line-too-long)
+category_management/views.py:35:0: C0304: Final newline missing (missing-final-newline)
+category_management/views.py:1:0: C0114: Missing module docstring (missing-module-docstring)
+category_management/views.py:8:0: C0115: Missing class docstring (missing-class-docstring)
+category_management/views.py:9:15: E1101: Class 'Category' has no 'objects' member (no-member)
+category_management/views.py:12:0: C0115: Missing class docstring (missing-class-docstring)
+category_management/views.py:13:15: E1101: Class 'Category' has no 'objects' member (no-member)
+category_management/views.py:16:0: C0115: Missing class docstring (missing-class-docstring)
+category_management/views.py:17:15: E1101: Class 'Category' has no 'objects' member (no-member)
+category_management/views.py:20:0: C0115: Missing class docstring (missing-class-docstring)
+category_management/views.py:21:15: E1101: Class 'Category' has no 'objects' member (no-member)
+category_management/views.py:24:0: C0115: Missing class docstring (missing-class-docstring)
+category_management/views.py:25:15: E1101: Class 'Category' has no 'objects' member (no-member)
+category_management/views.py:29:0: C0115: Missing class docstring (missing-class-docstring)
+category_management/views.py:35:15: E1101: Class 'Category' has no 'objects' member (no-member)
+category_management/views.py:3:0: C0412: Imports from package django are not grouped (ungrouped-imports)
+category_management/views.py:1:0: W0611: Unused render imported from django.shortcuts (unused-import)
+************* Module category_management.migrations.0001_initial
+category_management/migrations/0001_initial.py:18:0: C0301: Line too long (112/100) (line-too-long)
+category_management/migrations/0001_initial.py:1:0: C0114: Missing module docstring (missing-module-docstring)
+category_management/migrations/0001_initial.py:1:0: C0103: Module name "0001_initial" doesn't conform to snake_case naming style (invalid-name)
+category_management/migrations/0001_initial.py:7:0: C0115: Missing class docstring (missing-class-docstring)
+category_management/migrations/0001_initial.py:4:0: C0411: standard import "uuid" should be placed before third party import "django.db.migrations" (wrong-import-order)
+************* Module category_management.migrations.0002_category_business
+category_management/migrations/0002_category_business.py:18:0: C0301: Line too long (154/100) (line-too-long)
+category_management/migrations/0002_category_business.py:1:0: C0114: Missing module docstring (missing-module-docstring)
+category_management/migrations/0002_category_business.py:1:0: C0103: Module name "0002_category_business" doesn't conform to snake_case naming style (invalid-name)
+category_management/migrations/0002_category_business.py:7:0: C0115: Missing class docstring (missing-class-docstring)
+
+-----------------------------------
+Your code has been rated at 0.00/10
+

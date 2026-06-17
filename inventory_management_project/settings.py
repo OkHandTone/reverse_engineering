@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import socket
+
 from pathlib import Path
 from datetime import timedelta
 
@@ -23,10 +25,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-u4zr=(@gf(9$3d4gyaeij!=&c()1yt%j8*qbmy$4^atv!#wg3t'
 
+#afficher l'adresse IP du client sur le reseau local, si l ip = 10.213.3.131 alors debug = false, sinon debug = true
+#ip = socket.gethostbyname(socket.gethostname())
+#print("ip de con", ip)
+#if ip == '172.18.0.3':
+#    DEBUG = False
+#else:
+#    DEBUG = True
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False # chianto porqué paga blanco
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
