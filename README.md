@@ -47,22 +47,24 @@ cp .env.example .env
    cp .env.example .env
    ```
 
-3. **Build the Docker containers**:
+3. **Launch Docker**
+
+4. **Build the Docker containers**:
    ```bash
    docker compose build
    ```
 
-4. **Start the containers**:
+5. **Start the containers**:
    ```bash
    docker compose up
    ```
 
-5. **Run database migrations** (in another terminal, once the containers are up):
+6. **Run database migrations** (in another terminal, once the containers are up):
    ```bash
    docker compose exec api python manage.py migrate
    ```
 
-6. **Create an admin user**:
+7. **Create an admin user**:
    ```bash
    docker compose exec api python manage.py createsuperuser
    ```
