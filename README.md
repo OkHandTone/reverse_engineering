@@ -38,7 +38,7 @@ cp .env.example .env
 
 1. **Clone the repository**:
    ```bash
-   git clone git@github.com:OkHandTone/reverse_engineering.git
+   git clone https://github.com/OkHandTone/reverse_engineering.git
    cd reverse_engineering
    ```
 
