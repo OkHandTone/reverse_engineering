@@ -1,3 +1,4 @@
+from django.contrib.auth import authenticate
 from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.response import Response
@@ -12,16 +13,29 @@ from datetime import timedelta
 # Create your views here.
 @api_view(['POST'])
 def login_view(request):
-    print(request.data)
-    user = get_object_or_404(User, username=request.data.get('username'))
-    if not user.check_password(request.data.get('password')):
-        return Response({"error": "Invalid credentials"}, status=401)
-    
-    token, created = Token.objects.get_or_create(user=user)
-    
-    userSerializer = serializers.UserSerializer(instance=user)
-    print(userSerializer)
-    return Response({"token": token.key, "user":userSerializer.data}, status=200)
+    serializer = serializers.LoginSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response({'error': serializer.errors}, status=400)
+
+    user = authenticate(
+        request,
+        username=serializer.validated_data['username'],
+        password=serializer.validated_data['password'],
+    )
+    if user is None:
+        return Response({'error': 'Invalid credentials'}, status=401)
+
+    if not user.is_active:
+        return Response({'error': 'User account is disabled.'}, status=403)
+
+    token, _ = Token.objects.get_or_create(user=user)
+    return Response(
+        {
+            'token': token.key,
+            'user': serializers.UserSerializer(user).data,
+        },
+        status=200,
+    )
 
 
 @api_view(['POST'])
