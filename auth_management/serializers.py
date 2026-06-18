@@ -57,7 +57,8 @@ class RegisterSerializer(ModelSerializer):
     def create(self, validated_data):
         client = validated_data.pop('client', None)
         business = validated_data.pop('business', None)
-        user = User.objects.create_user(**validated_data)
+        password = validated_data.pop('password')
+        user = User.objects.create_user(password=password, **validated_data)
         if client:
             user.client = client
         if business:
