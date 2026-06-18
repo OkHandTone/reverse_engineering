@@ -78,7 +78,7 @@ class ClientSerializer(ModelSerializer):
 class BusinessSerializer(ModelSerializer):
     class Meta:
         model = Business
-        fields = '__all__'
+        fields = ['id', 'name', 'owner', 'created_on', 'updated_on']
         
 class UserSerializer(ModelSerializer):
     """

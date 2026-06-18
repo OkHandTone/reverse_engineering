@@ -5,12 +5,12 @@ class BusinessSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Business
-        fields = '__all__'
+        fields = ['id', 'name', 'owner', 'created_on', 'updated_on']
 
 class BusinessCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Business
-        fields = '__all__'
+        fields = ['id', 'name', 'owner', 'created_on', 'updated_on']
         extra_kwargs = {
             'name': {'required': True, 'allow_blank': False},
             'owner': {'required': False}
