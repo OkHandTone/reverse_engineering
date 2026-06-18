@@ -39,6 +39,8 @@ That single command builds the image (first run only), starts the API and the da
 
 **Change this password before exposing the app outside your machine.** It's controlled by `DJANGO_SUPERUSER_PASSWORD` — set it in `.env` before the first `docker compose up` (the superuser is only created once; changing the variable afterwards won't update an existing user).
 
+We strongly recommend logging into [http://localhost:8000/admin/](http://localhost:8000/admin/) right after the first start and using the **"CHANGE PASSWORD"** link (top right, next to your username) to set a new password immediately — don't leave the default `change-me` password active.
+
 ## Configuration
 
 A `.env` file is created automatically on first run with the defaults baked into [docker-compose.yml](docker-compose.yml). To customize anything (admin password, database credentials, etc.), create your own `.env` *before* the first launch — it takes precedence over the built-in defaults.
