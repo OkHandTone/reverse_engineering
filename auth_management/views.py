@@ -7,7 +7,21 @@ from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 
-# Create your views here.
+
+def _register_permission_error(requesting_user, data):
+    if requesting_user.user_type == User.UserType.WORKER:
+        return Response({"error": "Workers cannot register new users."}, status=403)
+
+    is_client = requesting_user.user_type == User.UserType.CLIENT
+    if is_client and data.get("user_type") != User.UserType.WORKER:
+        return Response({"error": "Clients can only register workers."}, status=403)
+
+    if is_client:
+        data["client"] = requesting_user.id
+
+    return None
+
+
 @api_view(['POST'])
 def login_view(request):
     serializer = serializers.LoginSerializer(data=request.data)
@@ -39,33 +53,25 @@ def login_view(request):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def register_view(request):
-    requesting_user = request.user
     data = request.data.copy()
-
-    # Restricciones por tipo de usuario que hace la solicitud
-    if requesting_user.user_type == User.UserType.WORKER:
-        return Response({"error": "Workers cannot register new users."}, status=403)
-
-    if requesting_user.user_type == User.UserType.CLIENT:
-        # Forzar que el nuevo usuario sea WORKER
-        if data.get("user_type") != User.UserType.WORKER:
-            return Response({"error": "Clients can only register workers."}, status=403)
-
-        # Forzar que el nuevo WORKER esté asociado al CLIENT que lo crea
-        data["client"] = requesting_user.id
+    permission_error = _register_permission_error(request.user, data)
+    if permission_error:
+        return permission_error
 
     serializer = serializers.RegisterSerializer(data=data)
     if not serializer.is_valid():
-        return Response({"error": serializer.errors}, status=400)
+        return Response({'error': serializer.errors}, status=400)
 
     user = serializer.save()
     token, _ = Token.objects.get_or_create(user=user)
-    return Response({
-        "message": "User registered successfully!",
-        "token": token.key,
-        "user": serializers.UserSerializer(user).data
-    }, status=201)
-
+    return Response(
+        {
+            'message': 'User registered successfully!',
+            'token': token.key,
+            'user': serializers.UserSerializer(user).data,
+        },
+        status=201,
+    )
 
 
 @api_view(['GET'])
@@ -73,13 +79,10 @@ def register_view(request):
 @permission_classes([IsAuthenticated])
 def my_profile_view(request):
     user = request.user
-    userSerializer = serializers.UserSerializer(instance=user)
-    token, created = Token.objects.get_or_create(user=user)
-    if not user.is_authenticated:
-        return Response({"error": "User not authenticated"}, status=401)
-    
-    # Aquí puedes devolver la información del perfil del usuario
-    return Response({
-        "user": userSerializer.data,
-        "token": token.key,
-    })
+    token, _ = Token.objects.get_or_create(user=user)
+    return Response(
+        {
+            'user': serializers.UserSerializer(instance=user).data,
+            'token': token.key,
+        },
+    )

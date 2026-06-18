@@ -42,27 +42,29 @@ class RegisterSerializer(ModelSerializer):
         }
 
     def validate(self, data):
-        if data['user_type'] == User.UserType.WORKER:
-            client = data.get('client')
-            business = data.get('business')
-            if not client:
-                raise ValidationError("Workers must be associated with a client.")
-            if not business:
-                raise ValidationError("Workers must be associated with a business.")
-            if business.owner != client:
-                raise ValidationError("The business must belong to the specified client.")
-        return data
+        if data['user_type'] != User.UserType.WORKER:
+            return data
 
+        client = data.get('client')
+        business = data.get('business')
+
+        if not client:
+            raise ValidationError('Workers must be associated with a client.')
+        if not business:
+            raise ValidationError('Workers must be associated with a business.')
+        if business.owner != client:
+            raise ValidationError('The business must belong to the specified client.')
+
+        return data
 
     def create(self, validated_data):
         client = validated_data.pop('client', None)
         business = validated_data.pop('business', None)
         password = validated_data.pop('password')
         user = User.objects.create_user(password=password, **validated_data)
-        if client:
-            user.client = client
-        if business:
-            user.business = business
+
+        user.client = client
+        user.business = business
         user.save()
         return user
 
