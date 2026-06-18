@@ -19,8 +19,6 @@ RUN python -m venv $VIRTUAL_ENV \
   && pip install -r /requirements.txt --no-cache-dir
 
 
-CMD ["./start.sh"]
-
 WORKDIR /app
 
-
+CMD ["./start.sh"]
