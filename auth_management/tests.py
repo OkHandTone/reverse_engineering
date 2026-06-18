@@ -10,6 +10,155 @@ from business_management.models import Business
 User = get_user_model()
 
 
+class LoginViewTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse('login')
+        self.user = User.objects.create_user(
+            username='login_user',
+            password='pass12345',
+            email='login@example.com',
+            phone='0611111111',
+            first_name='Login',
+            last_name='User',
+            identification_number='LOGIN001',
+        )
+
+    def test_login_returns_token_and_user(self):
+        response = self.client.post(
+            self.url,
+            {'username': 'login_user', 'password': 'pass12345'},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('token', response.data)
+        self.assertEqual(response.data['user']['username'], 'login_user')
+        self.assertTrue(Token.objects.filter(user=self.user).exists())
+
+    def test_login_invalid_password_returns_401(self):
+        response = self.client.post(
+            self.url,
+            {'username': 'login_user', 'password': 'wrong-password'},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.data['error'], 'Invalid credentials')
+
+    def test_login_unknown_user_returns_401(self):
+        response = self.client.post(
+            self.url,
+            {'username': 'unknown_user', 'password': 'pass12345'},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_login_missing_fields_returns_400(self):
+        response = self.client.post(self.url, {'username': 'login_user'}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_login_inactive_user_returns_401(self):
+        self.user.is_active = False
+        self.user.save(update_fields=['is_active'])
+        response = self.client.post(
+            self.url,
+            {'username': 'login_user', 'password': 'pass12345'},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class ProfileViewTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse('my_profile')
+        self.user = User.objects.create_user(
+            username='profile_user',
+            password='pass12345',
+            email='profile@example.com',
+            phone='0610101010',
+            first_name='Profile',
+            last_name='User',
+            identification_number='PROFILE001',
+        )
+
+    def test_profile_returns_authenticated_user(self):
+        token, _ = Token.objects.get_or_create(user=self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token.key}')
+
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['user']['username'], 'profile_user')
+        self.assertIn('token', response.data)
+
+    def test_profile_requires_authentication(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class ProtectedRouteAccessTests(TestCase):
+    """Vérifie que les routes protégées exigent un token valide."""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(
+            username='protected_user',
+            password='pass12345',
+            email='protected@example.com',
+            phone='0612121212',
+            first_name='Protected',
+            last_name='User',
+            identification_number='PROT001',
+            user_type=User.UserType.CLIENT,
+        )
+        self.token, _ = Token.objects.get_or_create(user=self.user)
+
+        self.protected_routes = [
+            ('GET', reverse('my_profile')),
+            ('GET', reverse('get_business')),
+            (
+                'POST',
+                reverse('register'),
+                {
+                    'username': 'new_user',
+                    'password': 'pass12345',
+                    'user_type': User.UserType.CLIENT,
+                    'first_name': 'New',
+                    'last_name': 'User',
+                    'phone': '0699999999',
+                    'identification_number': 'NEW001',
+                },
+            ),
+        ]
+
+    def test_protected_routes_reject_unauthenticated_requests(self):
+        for route in self.protected_routes:
+            method, url = route[0], route[1]
+
+            with self.subTest(method=method, url=url):
+                if method == 'GET':
+                    response = self.client.get(url)
+                else:
+                    response = self.client.post(url, route[2], format='json')
+                self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_protected_routes_allow_authenticated_requests(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+
+        profile_response = self.client.get(reverse('my_profile'))
+        self.assertEqual(profile_response.status_code, status.HTTP_200_OK)
+
+        business_response = self.client.get(reverse('get_business'))
+        self.assertEqual(business_response.status_code, status.HTTP_200_OK)
+
+    def test_login_route_is_public(self):
+        response = self.client.post(
+            reverse('login'),
+            {'username': 'protected_user', 'password': 'pass12345'},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
 class RegisterViewTests(TestCase):
     def setUp(self):
         self.client = APIClient()
