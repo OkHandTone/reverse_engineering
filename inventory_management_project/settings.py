@@ -10,7 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
-import socket
+import os
 
 from pathlib import Path
 from datetime import timedelta
@@ -23,17 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-u4zr=(@gf(9$3d4gyaeij!=&c()1yt%j8*qbmy$4^atv!#wg3t'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
-#afficher l'adresse IP du client sur le reseau local, si l ip = 10.213.3.131 alors debug = false, sinon debug = true
-#ip = socket.gethostbyname(socket.gethostname())
-#print("ip de con", ip)
-#if ip == '172.18.0.3':
-#    DEBUG = False
-#else:
-#    DEBUG = True
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False # chianto porqué paga blanco
+DEBUG = os.environ.get('DEBUG')
 
 ALLOWED_HOSTS = ['*']
 
@@ -97,8 +89,12 @@ WSGI_APPLICATION = 'inventory_management_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ['POSTGRES_DB'],
+        'USER': os.environ['POSTGRES_USER'],
+        'PASSWORD': os.environ['POSTGRES_PASSWORD'],
+        'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
+        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
     }
 }
 

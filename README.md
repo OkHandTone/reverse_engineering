@@ -1,82 +1,162 @@
 # Inventory Management System API
 
 ## Overview
-This project is an inventory management system API developed using Django Rest Framework (DRF). It's designed to handle various aspects of inventory management, including items, stock, transactions, categories, and suppliers.
+This project is an inventory management system API developed using Django Rest Framework (DRF). It's designed to handle various aspects of inventory management, including items, stock, transactions, categories, suppliers, businesses, and user authentication.
 
 ## Features
 - **Items Management**: Add, retrieve, update, and delete inventory items.
 - **Stock Management**: Manage stock levels for each item.
 - **Transaction Recording**: Record and retrieve purchase/sale transactions.
 - **Category and Supplier Management**: Organize items into categories and manage supplier details.
+- **Business Management**: Associate users with businesses.
+- **Authentication**: User registration, login, and profile endpoints.
 
-## To-Do and Contributions
+## Prerequisites
 
-- **Authentication and Authorization**: This feature is critical for securing the API. We plan to implement robust authentication and authorization mechanisms.
+- **Docker** and **Docker Compose**: [official Docker website](https://www.docker.com/get-started).
+- Or, for a local (non-Docker) setup: **Python 3.10+** and a local **PostgreSQL** instance.
 
-- **Payment Gateway Integration (M-PESA)**: We aim to integrate M-PESA as a payment gateway. This will facilitate seamless sales transactions within the system, making it more efficient for users in regions where M-PESA is a popular payment method.
+## Configuration
 
-- **Contributing**: Contributions are welcome, especially from individuals with experience in Django Rest Framework, authentication, authorization, and payment systems like M-PESA. If you're interested in contributing to these areas, please reach out to me via [Twitter](https://twitter.com/MungaiMbuthi) for collaboration.
+This project reads its configuration from environment variables. Copy the example file and fill in your own values:
 
-## Installation
+```bash
+cp .env.example .env
+```
 
-This project is containerized using Docker, ensuring a consistent and isolated environment for development and deployment.
+| Variable | Description |
+|---|---|
+| `SECRET_KEY` | Django secret key. Generate one, never reuse the example value. |
+| `DEBUG` | `True` or `False`. |
+| `POSTGRES_USER` | PostgreSQL username. |
+| `POSTGRES_PASSWORD` | PostgreSQL password. |
+| `POSTGRES_DB` | PostgreSQL database name. |
+| `POSTGRES_HOST` | Database host (`inventory_db` when using Docker Compose, `localhost` otherwise). |
+| `POSTGRES_PORT` | Database port (`5432` by default). |
 
-### Prerequisites
-
-- **Docker**: You need to have Docker installed on your local machine. You can download and install Docker from the [official Docker website](https://www.docker.com/get-started).
-
-### Getting Started with Docker
-If you're new to Docker, I recommend reading these articles for a solid introduction:
-- [Getting started with Docker](https://dev.to/mbuthi/docker-2oge)
-- [DevOps with Fast API & PostgreSQL: How to containerize Fast API Application with Docker](https://dev.to/mbuthi/devops-with-fast-api-postgresql-how-to-containerize-fast-api-application-with-docker-1jdb)
-
-### Setup Instructions
+## Installation with Docker (recommended)
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/mbuthi/Inventory_management_system.git
+   git clone git@github.com:OkHandTone/reverse_engineering.git
+   cd reverse_engineering
    ```
 
-2. **Build the Docker Containers**:
-   Navigate to the root directory of the project and run:
+2. **Create your `.env` file** (see [Configuration](#configuration)):
    ```bash
-   docker-compose -f docker-compose.yml build --no-cache
+   cp .env.example .env
    ```
 
-3. **Start the Containers**:
+3. **Build the Docker containers**:
    ```bash
-   docker-compose -f docker-compose.yml up -d
+   docker compose build
    ```
 
-### Database
+4. **Start the containers**:
+   ```bash
+   docker compose up
+   ```
 
-- The project uses **PostgreSQL** as its database. The Docker setup includes the PostgreSQL container, so you do not need to install it separately.
+5. **Run database migrations** (in another terminal, once the containers are up):
+   ```bash
+   docker compose exec api python manage.py migrate
+   ```
 
-### Running the Application
+6. **Create an admin user**:
+   ```bash
+   docker compose exec api python manage.py createsuperuser
+   ```
 
-Once the Docker containers are up and running, the Inventory Management System API will be accessible at the designated port.
+The API is then available at `http://localhost:8000/api/v1/`, and the Django admin at `http://localhost:8000/admin/`.
 
-In your browser, you can access the API through HTTP://localhost:8000/api/v1
+## Installation without Docker
+
+1. **Clone the repository** and move into it.
+
+2. **Create and activate a virtual environment**:
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate  # on Windows: .venv\Scripts\activate
+   ```
+
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Create your `.env` file** and set `POSTGRES_HOST=localhost` (assuming PostgreSQL runs locally).
+
+5. **Run migrations**:
+   ```bash
+   python manage.py migrate
+   ```
+
+6. **Create an admin user**:
+   ```bash
+   python manage.py createsuperuser
+   ```
+
+7. **Start the development server**:
+   ```bash
+   python manage.py runserver 0.0.0.0:8000
+   ```
 
 ## API Endpoints
 
-### Items
-- `POST /items`: Add a new inventory item.
-- `GET /items`: Retrieve a list of all inventory items.
+All endpoints are prefixed with `/api/v1/`.
 
-### Stock
-- `POST /stock`: Add stock for an item.
-- `GET /stock/{itemId}`: Retrieve current stock for an item.
+### Categories (`/api/v1/categories/`)
+- `GET /` – list categories
+- `POST /` – create a category
+- `GET /one/{id}` – retrieve a category
+- `PUT /update/{id}` – update a category
+- `DELETE /delete/{id}` – delete a category
 
-### Transactions
-- `POST /transactions`: Record a new transaction.
-- `GET /transactions`: Retrieve all transactions.
+### Items (`/api/v1/items/`)
+- `GET /` – list items
+- `POST /` – create an item
+- `GET /one/{id}` – retrieve an item
+- `PUT /update/{id}` – update an item
+- `DELETE /delete/{id}` – delete an item
 
-_More endpoints are detailed in the documentation._
+### Stock (`/api/v1/stocks/`)
+- `GET /` – list stock entries
+- `POST /create` – create a stock entry
+- `GET /one/{id}` – retrieve a stock entry
+- `PUT /update/{id}` – update a stock entry
+- `DELETE /delete/{id}` – delete a stock entry
+
+### Suppliers (`/api/v1/suppliers/`)
+- `GET /` – list suppliers
+- `POST /create` – create a supplier
+- `GET /one/{id}` – retrieve a supplier
+- `PUT /update/{id}` – update a supplier
+- `DELETE /delete/{id}` – delete a supplier
+
+### Transactions (`/api/v1/transactions/`)
+- `GET /` – list transactions
+- `POST /create` – create a transaction
+- `GET /one/{id}` – retrieve a transaction
+- `PUT /update/{id}` – update a transaction
+- `DELETE /delete/{id}` – delete a transaction
+
+### Business (`/api/v1/business/`)
+- `GET /` – retrieve business info
+
+### Users (`/api/v1/users/`)
+- `POST /login/` – log in
+- `POST /register/` – register a new user
+- `GET /profile/` – retrieve the authenticated user's profile
 
 ## Project Structure
 
-- `models/`: Contains the models for the API.
-- `serializers/`: Contains serializers for model instances.
-- `views/`: Contains views for handling requests.
-- `urls.py`: URL declarations for the API endpoints.
+Each domain lives in its own Django app (`category_management`, `item_management`, `stock_management`, `supplier_management`, `transaction_management`, `business_management`, `auth_management`), following the standard Django layout:
+
+- `models.py`: data models for the app.
+- `serializers.py`: DRF serializers for model instances.
+- `views.py`: views handling requests.
+- `urls.py`: URL declarations for the app's endpoints.
+
+## Contributing
+
+Contributions are welcome. Feel free to open an issue or a pull request.
