@@ -1,14 +1,18 @@
-from rest_framework.serializers import ModelSerializer, ValidationError, ChoiceField, PrimaryKeyRelatedField
+from rest_framework.serializers import (
+    CharField,
+    ChoiceField,
+    ModelSerializer,
+    PrimaryKeyRelatedField,
+    Serializer,
+    ValidationError,
+)
 from .models import AuthUser as User
 from business_management.models import Business
 
-class LoginSerializer(ModelSerializer):
-    """
-    Serializer for the login view.
-    """
-    class Meta:
-        model = User
-        fields = ['username', 'password']
+
+class LoginSerializer(Serializer):
+    username = CharField()
+    password = CharField(write_only=True)
 
 class RegisterSerializer(ModelSerializer):
     user_type = ChoiceField(choices=User.UserType.choices, required=True)
