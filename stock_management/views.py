@@ -16,7 +16,7 @@ class CreateStock(generics.CreateAPIView):
     queryset = Stock.objects.all()
     serializer_class = StockSerializer
     
-class DeleteStock(generics.CreateAPIView):
+class DeleteStock(generics.DestroyAPIView):
     queryset = Stock.objects.all()
     serializer_class = StockSerializer
 

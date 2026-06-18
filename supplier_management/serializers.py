@@ -4,5 +4,8 @@ from .models import Supplier
 class SupplierSerializer(serializers.ModelSerializer):
     class Meta:
         model = Supplier
-        fields = "__all__"
+        fields = [
+            'id', 'name', 'phone_number', 'email',
+            'created_on', 'updated_on',
+        ]
         
