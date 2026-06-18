@@ -18,6 +18,9 @@ COPY ./requirements.txt /requirements.txt
 RUN python -m venv $VIRTUAL_ENV \
   && pip install -r /requirements.txt --no-cache-dir
 
+
+CMD ["./start.sh"]
+
 WORKDIR /app
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
