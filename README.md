@@ -14,92 +14,53 @@ This project is an inventory management system API developed using Django Rest F
 ## Prerequisites
 
 - **Docker** and **Docker Compose**: [official Docker website](https://www.docker.com/get-started).
-- Or, for a local (non-Docker) setup: **Python 3.10+** and a local **PostgreSQL** instance.
+- That's it — no Python, no PostgreSQL install, no manual `.env` setup needed.
+
+## Installation
+
+```bash
+git clone git@github.com:OkHandTone/reverse_engineering.git
+cd reverse_engineering
+docker compose up
+```
+
+That single command builds the image (first run only), starts the API and the database, generates a `.env` file with working defaults if none exists, runs the database migrations, and creates the default admin user. Once the logs show `Starting development server at http://0.0.0.0:8000/`, the app is ready:
+
+- API: `http://localhost:8000/api/v1/`
+- Django admin: `http://localhost:8000/admin/`
+
+### Default admin login
+
+| Field | Default value |
+|---|---|
+| Username | `admin` |
+| Password | `change-me` |
+| Email | `admin@example.com` |
+
+**Change this password before exposing the app outside your machine.** It's controlled by `DJANGO_SUPERUSER_PASSWORD` — set it in `.env` before the first `docker compose up` (the superuser is only created once; changing the variable afterwards won't update an existing user).
 
 ## Configuration
 
-This project reads its configuration from environment variables. Copy the example file and fill in your own values:
+A `.env` file is created automatically on first run with the defaults baked into [docker-compose.yml](docker-compose.yml). To customize anything (admin password, database credentials, etc.), create your own `.env` *before* the first launch — it takes precedence over the built-in defaults.
+
+| Variable | Description | Default |
+|---|---|---|
+| `SECRET_KEY` | Django secret key. Change it for anything beyond local use. | `django-insecure-default-key-change-me` |
+| `DEBUG` | `True` or `False`. | `True` |
+| `DB_ENGINE` | `sqlite` or `postgres`. **Defaults to `sqlite`** — the bundled Postgres container runs but is unused unless you set this to `postgres`. | `sqlite` |
+| `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` | PostgreSQL credentials (only used when `DB_ENGINE=postgres`). | `admin` / `admin` / `admin` |
+| `POSTGRES_HOST` / `POSTGRES_PORT` | Database host/port. | `inventory_db` / `5432` |
+| `DJANGO_SUPERUSER_USERNAME` / `PASSWORD` / `EMAIL` | Default admin account, created automatically on first boot. | see [above](#default-admin-login) |
+
+## Useful commands
 
 ```bash
-cp .env.example .env
+docker compose up -d          # run in the background
+docker compose logs -f api    # follow API logs
+docker compose down           # stop everything (data is kept in Docker volumes)
+docker compose down -v        # stop and wipe the database/venv volumes
+docker compose exec api python manage.py <command>   # run any Django management command
 ```
-
-| Variable | Description |
-|---|---|
-| `SECRET_KEY` | Django secret key. Generate one, never reuse the example value. |
-| `DEBUG` | `True` or `False`. |
-| `POSTGRES_USER` | PostgreSQL username. |
-| `POSTGRES_PASSWORD` | PostgreSQL password. |
-| `POSTGRES_DB` | PostgreSQL database name. |
-| `POSTGRES_HOST` | Database host (`inventory_db` when using Docker Compose, `localhost` otherwise). |
-| `POSTGRES_PORT` | Database port (`5432` by default). |
-
-## Installation with Docker (recommended)
-
-1. **Clone the repository**:
-   ```bash
-   git clone git@github.com:OkHandTone/reverse_engineering.git
-   cd reverse_engineering
-   ```
-
-2. **Create your `.env` file** (see [Configuration](#configuration)):
-   ```bash
-   cp .env.example .env
-   ```
-
-3. **Build the Docker containers**:
-   ```bash
-   docker compose build
-   ```
-
-4. **Start the containers**:
-   ```bash
-   docker compose up
-   ```
-
-5. **Run database migrations** (in another terminal, once the containers are up):
-   ```bash
-   docker compose exec api python manage.py migrate
-   ```
-
-6. **Create an admin user**:
-   ```bash
-   docker compose exec api python manage.py createsuperuser
-   ```
-
-The API is then available at `http://localhost:8000/api/v1/`, and the Django admin at `http://localhost:8000/admin/`.
-
-## Installation without Docker
-
-1. **Clone the repository** and move into it.
-
-2. **Create and activate a virtual environment**:
-   ```bash
-   python3 -m venv .venv
-   source .venv/bin/activate  # on Windows: .venv\Scripts\activate
-   ```
-
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Create your `.env` file** and set `POSTGRES_HOST=localhost` (assuming PostgreSQL runs locally).
-
-5. **Run migrations**:
-   ```bash
-   python manage.py migrate
-   ```
-
-6. **Create an admin user**:
-   ```bash
-   python manage.py createsuperuser
-   ```
-
-7. **Start the development server**:
-   ```bash
-   python manage.py runserver 0.0.0.0:8000
-   ```
 
 ## API Endpoints
 
