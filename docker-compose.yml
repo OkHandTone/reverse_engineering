@@ -4,22 +4,27 @@ services:
   api:
     build:
       context: .
+      dockerfile: Dockerfile
     image: inventory_api
     volumes:
       - .:/app
+      - venv_data:/app/.venv
     ports:
       - 8000:8000
     env_file:
       - ./.env
-  
+    depends_on:
+      - inventory_db
+
   inventory_db:
     image: postgres:16rc1-alpine3.18
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-    environment:  # Use environment variables for db configuration
+    environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+      - POSTGRES_DB=${POSTGRES_DB}
+
 volumes:
   postgres_data:
-  
+  venv_data:
