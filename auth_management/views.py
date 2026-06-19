@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.shortcuts import redirect, render
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_http_methods
 from rest_framework.authtoken.models import Token
@@ -55,6 +56,10 @@ def login_page_view(request):
 
     auth_login(request, user)
     Token.objects.get_or_create(user=user)
+
+    next_url = request.GET.get('next') or request.POST.get('next')
+    if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+        return redirect(next_url)
     return redirect('items_page')
 
 
