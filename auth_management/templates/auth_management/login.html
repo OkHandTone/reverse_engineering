@@ -80,6 +80,9 @@
 
         <form method="post">
             {% csrf_token %}
+            {% if request.GET.next %}
+                <input type="hidden" name="next" value="{{ request.GET.next }}">
+            {% endif %}
             <label for="username">Nom d'utilisateur</label>
             <input type="text" id="username" name="username" required autofocus>
 
