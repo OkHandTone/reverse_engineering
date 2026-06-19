@@ -59,9 +59,12 @@ def login_page_view(request):
     Token.objects.get_or_create(user=user)
 
     next_url = request.GET.get('next') or request.POST.get('next')
-    if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
-        return redirect(next_url)
-    return redirect(settings.LOGIN_REDIRECT_URL)
+    if next_url:
+        allowed_hosts = {request.get_host()}
+        allowed_hosts.update(host for host in settings.ALLOWED_HOSTS if host != '*')
+        if url_has_allowed_host_and_scheme(next_url, allowed_hosts=allowed_hosts):
+            return redirect(next_url)
+    return redirect('items_page')
 
 
 @require_http_methods(['GET', 'POST'])
