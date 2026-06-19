@@ -1,46 +1,86 @@
 from django.contrib.auth import authenticate
-
-from rest_framework.authentication import TokenAuthentication
+from django.shortcuts import render
+from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.http import require_http_methods
 from rest_framework.authtoken.models import Token
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from . import serializers
 from .models import AuthUser as User
 
 
-class LoginView(APIView):
-    """Connexion personnalisée pour CLIENT, WORKER et SUPERADMIN."""
+@require_http_methods(['GET', 'POST'])
+@csrf_protect
+def login_page_view(request):
+    """Page HTML de connexion pour CLIENT, WORKER et SUPERADMIN."""
+    if request.method == 'GET':
+        return render(request, 'auth_management/login.html')
 
-    authentication_classes = []
-    permission_classes = [AllowAny]
+    username = request.POST.get('username', '').strip()
+    password = request.POST.get('password', '')
 
-    def post(self, request):
-        serializer = serializers.LoginSerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response({'error': serializer.errors}, status=400)
-
-        user = authenticate(
+    if not username or not password:
+        return render(
             request,
-            username=serializer.validated_data['username'],
-            password=serializer.validated_data['password'],
+            'auth_management/login.html',
+            {'error': 'Veuillez renseigner le nom d\'utilisateur et le mot de passe.'},
         )
-        if user is None:
-            return Response({'error': 'Invalid credentials'}, status=401)
 
-        if not user.is_active:
-            return Response({'error': 'User account is disabled.'}, status=403)
-
-        token, _ = Token.objects.get_or_create(user=user)
-        return Response(
-            {
-                'token': token.key,
-                'user': serializers.UserSerializer(user).data,
-            },
-            status=200,
+    user = authenticate(request, username=username, password=password)
+    if user is None:
+        return render(
+            request,
+            'auth_management/login.html',
+            {'error': 'Identifiants invalides.'},
         )
+
+    if not user.is_active:
+        return render(
+            request,
+            'auth_management/login.html',
+            {'error': 'Ce compte est désactivé.'},
+        )
+
+    token, _ = Token.objects.get_or_create(user=user)
+    return render(
+        request,
+        'auth_management/login_success.html',
+        {
+            'user': user,
+            'token': token.key,
+        },
+    )
+
+
+@api_view(['POST'])
+def login_api_view(request):
+    """Endpoint JSON pour la connexion (API)."""
+    serializer = serializers.LoginSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response({'error': serializer.errors}, status=400)
+
+    user = authenticate(
+        request,
+        username=serializer.validated_data['username'],
+        password=serializer.validated_data['password'],
+    )
+    if user is None:
+        return Response({'error': 'Invalid credentials'}, status=401)
+
+    if not user.is_active:
+        return Response({'error': 'User account is disabled.'}, status=403)
+
+    token, _ = Token.objects.get_or_create(user=user)
+    return Response(
+        {
+            'token': token.key,
+            'user': serializers.UserSerializer(user).data,
+        },
+        status=200,
+    )
 
 
 @api_view(['POST'])
