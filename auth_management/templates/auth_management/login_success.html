@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connecté - Inventory Management</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 520px;
+        }
+        h1 {
+            margin: 0 0 1rem;
+            font-size: 1.5rem;
+            color: #166534;
+        }
+        .info { margin-bottom: 0.75rem; color: #333; }
+        .label { font-weight: 600; color: #555; }
+        .token {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.75rem;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 0.9rem;
+            margin: 1rem 0;
+        }
+        a {
+            display: inline-block;
+            margin-top: 1rem;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Connexion réussie</h1>
+
+        <p class="info"><span class="label">Utilisateur :</span> {{ user.username }}</p>
+        <p class="info"><span class="label">Nom :</span> {{ user.first_name }} {{ user.last_name }}</p>
+        <p class="info"><span class="label">Rôle :</span> {{ user.get_user_type_display }}</p>
+        <p class="info"><span class="label">Email :</span> {{ user.email|default:"—" }}</p>
+
+        <p class="label">Token API :</p>
+        <div class="token">{{ token }}</div>
+        <p class="info">Utilise ce token dans le header : <code>Authorization: Token {{ token }}</code></p>
+
+        <a href="{% url 'login_page' %}">Se déconnecter / nouvelle connexion</a>
+    </div>
+</body>
+</html>
