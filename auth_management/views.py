@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -15,7 +16,7 @@ from .models import AuthUser as User
 
 def home_view(request):
     if request.user.is_authenticated:
-        return redirect('items_page')
+        return redirect(settings.LOGIN_REDIRECT_URL)
     return redirect('login_page')
 
 
@@ -24,7 +25,7 @@ def home_view(request):
 def login_page_view(request):
     """Page HTML de connexion pour CLIENT, WORKER et SUPERADMIN."""
     if request.user.is_authenticated:
-        return redirect('items_page')
+        return redirect(settings.LOGIN_REDIRECT_URL)
 
     if request.method == 'GET':
         return render(request, 'auth_management/login.html')
@@ -60,13 +61,49 @@ def login_page_view(request):
     next_url = request.GET.get('next') or request.POST.get('next')
     if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
         return redirect(next_url)
-    return redirect('items_page')
+    return redirect(settings.LOGIN_REDIRECT_URL)
 
 
 @require_http_methods(['GET', 'POST'])
 def logout_page_view(request):
     auth_logout(request)
     return redirect('login_page')
+
+
+@require_http_methods(['GET', 'POST'])
+@csrf_protect
+def register_page_view(request):
+    """Inscription publique pour les comptes CLIENT."""
+    if request.user.is_authenticated:
+        return redirect(settings.LOGIN_REDIRECT_URL)
+
+    if request.method == 'GET':
+        return render(request, 'auth_management/register.html')
+
+    data = {
+        'username': request.POST.get('username', '').strip(),
+        'password': request.POST.get('password', ''),
+        'email': request.POST.get('email', '').strip(),
+        'first_name': request.POST.get('first_name', '').strip(),
+        'last_name': request.POST.get('last_name', '').strip(),
+        'phone': request.POST.get('phone', '').strip(),
+        'identification_number': request.POST.get('identification_number', '').strip(),
+        'user_type': User.UserType.CLIENT,
+    }
+
+    serializer = serializers.RegisterSerializer(data=data)
+    if not serializer.is_valid():
+        first_error = next(iter(serializer.errors.values()))[0]
+        return render(
+            request,
+            'auth_management/register.html',
+            {'error': str(first_error)},
+        )
+
+    user = serializer.save()
+    auth_login(request, user)
+    Token.objects.get_or_create(user=user)
+    return redirect(settings.LOGIN_REDIRECT_URL)
 
 
 @api_view(['POST'])
@@ -101,18 +138,28 @@ def login_api_view(request):
 
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def register_view(request):
-    requesting_user = request.user
     data = request.data.copy()
 
-    if requesting_user.user_type == User.UserType.WORKER:
-        return Response({'error': 'Workers cannot register new users.'}, status=403)
+    if request.user.is_authenticated:
+        requesting_user = request.user
 
-    if requesting_user.user_type == User.UserType.CLIENT:
-        if data.get('user_type') != User.UserType.WORKER:
-            return Response({'error': 'Clients can only register workers.'}, status=403)
-        data['client'] = requesting_user.id
+        if requesting_user.user_type == User.UserType.WORKER:
+            return Response({'error': 'Workers cannot register new users.'}, status=403)
+
+        if requesting_user.user_type == User.UserType.CLIENT:
+            if data.get('user_type') != User.UserType.WORKER:
+                return Response({'error': 'Clients can only register workers.'}, status=403)
+            data['client'] = requesting_user.id
+    else:
+        user_type = data.get('user_type', User.UserType.CLIENT)
+        if user_type != User.UserType.CLIENT:
+            return Response(
+                {'error': 'Public registration is only available for client accounts.'},
+                status=403,
+            )
+        data['user_type'] = User.UserType.CLIENT
 
     serializer = serializers.RegisterSerializer(data=data)
     if not serializer.is_valid():

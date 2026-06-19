@@ -35,6 +35,7 @@ class RegisterSerializer(ModelSerializer):
         ]
         extra_kwargs = {
             'password': {'write_only': True},
+            'email': {'required': False, 'allow_blank': True, 'default': ''},
             'first_name': {'required': True},
             'last_name': {'required': True},
             'phone': {'required': True},
