@@ -76,7 +76,7 @@ class RegisterViewTests(TestCase):
             'business': str((business or self.business).id),
         }
 
-    def test_register_requires_authentication(self):
+    def test_public_client_register_works(self):
         response = self.client.post(
             self.register_url,
             {
@@ -90,7 +90,18 @@ class RegisterViewTests(TestCase):
             },
             format='json',
         )
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        created = User.objects.get(username='anonymous')
+        self.assertEqual(created.user_type, User.UserType.CLIENT)
+        self.assertIn('token', response.data)
+
+    def test_public_register_rejects_worker(self):
+        response = self.client.post(
+            self.register_url,
+            self._worker_payload('blocked_public_worker'),
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_worker_cannot_register_users(self):
         self._auth_as(self.worker)

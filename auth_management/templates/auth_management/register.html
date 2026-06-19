@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion - Inventory Management</title>
+    <title>Inscription - Inventory Management</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -14,6 +14,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 2rem 1rem;
         }
         .card {
             background: #fff;
@@ -23,22 +24,9 @@
             width: 100%;
             max-width: 420px;
         }
-        h1 {
-            margin: 0 0 0.5rem;
-            font-size: 1.5rem;
-            color: #1a1a1a;
-        }
-        p.subtitle {
-            margin: 0 0 1.5rem;
-            color: #666;
-            font-size: 0.95rem;
-        }
-        label {
-            display: block;
-            margin-bottom: 0.35rem;
-            font-weight: 600;
-            color: #333;
-        }
+        h1 { margin: 0 0 0.5rem; font-size: 1.5rem; color: #1a1a1a; }
+        p.subtitle { margin: 0 0 1.5rem; color: #666; font-size: 0.95rem; }
+        label { display: block; margin-bottom: 0.35rem; font-weight: 600; color: #333; }
         input {
             width: 100%;
             padding: 0.75rem;
@@ -59,12 +47,6 @@
             cursor: pointer;
         }
         button:hover { background: #1d4ed8; }
-        a {
-            color: #2563eb;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        a:hover { text-decoration: underline; }
         .error {
             background: #fef2f2;
             color: #b91c1c;
@@ -73,12 +55,15 @@
             margin-bottom: 1rem;
             border: 1px solid #fecaca;
         }
+        .footer { margin-top: 1rem; text-align: center; font-size: 0.95rem; }
+        a { color: #2563eb; text-decoration: none; font-weight: 600; }
+        a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
     <div class="card">
-        <h1>Connexion</h1>
-        <p class="subtitle">Client, Worker ou Superadmin</p>
+        <h1>Inscription</h1>
+        <p class="subtitle">Créer un compte client</p>
 
         {% if error %}
             <div class="error">{{ error }}</div>
@@ -86,21 +71,31 @@
 
         <form method="post">
             {% csrf_token %}
-            {% if request.GET.next %}
-                <input type="hidden" name="next" value="{{ request.GET.next }}">
-            {% endif %}
             <label for="username">Nom d'utilisateur</label>
             <input type="text" id="username" name="username" required autofocus>
 
-            <label for="password">Mot de passe</label>
-            <input type="password" id="password" name="password" required>
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email">
 
-            <button type="submit">Se connecter</button>
+            <label for="password">Mot de passe</label>
+            <input type="password" id="password" name="password" required minlength="8">
+
+            <label for="first_name">Prénom</label>
+            <input type="text" id="first_name" name="first_name" required>
+
+            <label for="last_name">Nom</label>
+            <input type="text" id="last_name" name="last_name" required>
+
+            <label for="phone">Téléphone</label>
+            <input type="text" id="phone" name="phone" required>
+
+            <label for="identification_number">Numéro d'identification</label>
+            <input type="text" id="identification_number" name="identification_number" required>
+
+            <button type="submit">Créer mon compte</button>
         </form>
 
-        <p class="footer" style="margin-top: 1rem; text-align: center; font-size: 0.95rem;">
-            Pas encore de compte ? <a href="{% url 'register_page' %}">S'inscrire</a>
-        </p>
+        <p class="footer">Déjà un compte ? <a href="{% url 'login_page' %}">Se connecter</a></p>
     </div>
 </body>
 </html>
