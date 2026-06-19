@@ -42,7 +42,7 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/api/v1/items/'
+LOGIN_REDIRECT_URL = '/items/'
 
 
 # Application definition
