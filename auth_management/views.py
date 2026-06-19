@@ -1,21 +1,30 @@
-from django.contrib.auth import authenticate
-from django.shortcuts import render
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
+from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_http_methods
 from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from . import serializers
 from .models import AuthUser as User
 
 
+def home_view(request):
+    if request.user.is_authenticated:
+        return redirect('items_page')
+    return redirect('login_page')
+
+
 @require_http_methods(['GET', 'POST'])
 @csrf_protect
 def login_page_view(request):
     """Page HTML de connexion pour CLIENT, WORKER et SUPERADMIN."""
+    if request.user.is_authenticated:
+        return redirect('items_page')
+
     if request.method == 'GET':
         return render(request, 'auth_management/login.html')
 
@@ -44,18 +53,20 @@ def login_page_view(request):
             {'error': 'Ce compte est désactivé.'},
         )
 
-    token, _ = Token.objects.get_or_create(user=user)
-    return render(
-        request,
-        'auth_management/login_success.html',
-        {
-            'user': user,
-            'token': token.key,
-        },
-    )
+    auth_login(request, user)
+    Token.objects.get_or_create(user=user)
+    return redirect('items_page')
+
+
+@require_http_methods(['GET', 'POST'])
+def logout_page_view(request):
+    auth_logout(request)
+    return redirect('login_page')
 
 
 @api_view(['POST'])
+@authentication_classes([])
+@permission_classes([AllowAny])
 def login_api_view(request):
     """Endpoint JSON pour la connexion (API)."""
     serializer = serializers.LoginSerializer(data=request.data)
