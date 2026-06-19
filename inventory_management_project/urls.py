@@ -18,23 +18,20 @@ from django.contrib import admin
 from django.urls import path, include
 
 from auth_management import views as auth_views
-from item_management.views import items_page_view
 
 urlpatterns = [
     path('', auth_views.home_view, name='home'),
     path('login/', auth_views.login_page_view, name='login_page'),
+    path('register/', auth_views.register_page_view, name='register_page'),
     path('logout/', auth_views.logout_page_view, name='logout_page'),
-    path('items/', items_page_view, name='items_page'),
     path('admin/', admin.site.urls),
     path('api/v1/', include([
         path('categories/', include('category_management.urls')),
-        path("items/", include("item_management.urls")),
-        path("stocks/", include("stock_management.urls")),
-        path("suppliers/", include("supplier_management.urls")),
-        path("transactions/", include("transaction_management.urls")),
-        path("users/", include("auth_management.urls")),
-        path("business/", include("business_management.urls")),
-        # Include other app's URL configurations here, e.g.,
-        # path('items/', include('item_management.urls')),
+        path('items/', include('item_management.urls')),
+        path('stocks/', include('stock_management.urls')),
+        path('suppliers/', include('supplier_management.urls')),
+        path('transactions/', include('transaction_management.urls')),
+        path('users/', include('auth_management.urls')),
+        path('business/', include('business_management.urls')),
     ])),
 ]
